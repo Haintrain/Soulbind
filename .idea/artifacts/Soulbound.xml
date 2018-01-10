@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="Soulbound">
+    <output-path>$PROJECT_DIR$/out/artifacts/Soulbound</output-path>
+    <root id="archive" name="Soulbound.jar">
+      <element id="module-output" name="Soulbind" />
+    </root>
+  </artifact>
+</component>
