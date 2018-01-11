@@ -18,9 +18,7 @@ import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.plugin.Plugin;
 
-import java.lang.reflect.Field;
 import java.util.*;
 
 @Info(name = "Test", version = "1.0", color = ChatColor.WHITE, displayName = "Test")
@@ -60,9 +58,9 @@ public class Soulbind extends JavaModule implements ObeliskListener{
         UUID uuid = player.getUniqueId();
         UserMask u = User.getMask(this, uuid);
 
-        Integer tokens = u.getVarElseSetDefault("tokens", 0);
+        Integer token = u.getVarElseSetDefault("token", 0);
 
-        if(tokens > 0){
+        if(token > 0){
             if(player.getInventory().getItemInMainHand() instanceof ItemStack){
                 if (player.getInventory().getItemInMainHand().getAmount() > 1) {
                     player.sendMessage("Maximum stack size for soulbound items is one.");
@@ -75,34 +73,34 @@ public class Soulbind extends JavaModule implements ObeliskListener{
                     ItemMeta itemmeta = item.getItemMeta();
                     ArrayList<String> lore = new ArrayList<String>();
                     item.setItemMeta(itemmeta);
-                    u.setVar("tokens", tokens - 1);
+                    u.setVar("token", token - 1);
 
                     player.getInventory().setItemInMainHand(SoulbindEnchant.addBound(item));
                 }
             }
         }
         else{
-            player.sendMessage("Not enough tokens");
+            player.sendMessage("Not enough token");
         }
 
     }
 
-    @OCmd(cmd = "tokens", info = "View tokens")
+    @OCmd(cmd = "tokens", info = "View token")
     void getToken(Player player) {
         UUID uuid = player.getUniqueId();
         UserMask u = User.getMask(this, uuid);
 
-        Integer tokens = u.getVarElseSetDefault("tokens", 0);
+        Integer token = u.getVarElseSetDefault("token", 0);
 
-        player.sendMessage("You have this many soulbind tokens: " + Integer.toString(tokens)) ;
+        player.sendMessage("You have this many soulbind token: " + Integer.toString(token)) ;
     }
 
     void setToken(Player player){
         UUID uuid = player.getUniqueId();
         UserMask u = User.getMask(this, uuid);
 
-        Integer tokens = u.getVarElseSetDefault("tokens", 0);
-        u.setVar("tokens", tokens + 1);
+        Integer token = u.getVarElseSetDefault("token", 0);
+        u.setVar("token", token + 1);
     }
 
     @EventHandler
@@ -153,8 +151,6 @@ public class Soulbind extends JavaModule implements ObeliskListener{
             u.setVar("items", inventoryKeep);
         }
     }
-
-
 
     @EventHandler
     public void onPlayerSpawn(PlayerRespawnEvent event) {
