@@ -13,8 +13,12 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.inventory.ClickType;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.inventory.InventoryMoveItemEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -113,11 +117,13 @@ public class Soulbind extends JavaModule implements ObeliskListener{
     }
 
     @EventHandler
-    void onMoveDrop(InventoryMoveItemEvent event){
-        ItemStack item = event.getItem();
+    void onMoveDrop(InventoryDragEvent event){
+        if(event.getCursor() != null) {
+            ItemStack item = event.getCursor();
 
-        if(isSoulbound(item)){
-            event.setCancelled(true);
+            if (isSoulbound(item)) {
+                event.setCancelled(true);
+            }
         }
     }
 
@@ -127,6 +133,39 @@ public class Soulbind extends JavaModule implements ObeliskListener{
 
         if(isSoulbound(item)){
             event.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public void onPlayerInteract(PlayerInteractEvent event){
+        ItemStack item = event.getItem();
+
+        if(isSoulbound(item)){
+            event.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public void onInventoryClick(InventoryClickEvent event){
+        ItemStack item = event.getCurrentItem();
+        Integer slot = event.getSlot();
+
+        if(event.getClick() == ClickType.SHIFT_RIGHT) {
+            if (isSoulbound(item)) {
+                event.setCancelled(true);
+            }
+        }
+
+        if(slot >= 100 && slot <= 103 ){
+            if (isSoulbound(item)) {
+                event.setCancelled(true);
+            }
+        }
+
+        if(slot >= 80 && slot <= 83){
+            if (isSoulbound(item)) {
+                event.setCancelled(true);
+            }
         }
     }
 
