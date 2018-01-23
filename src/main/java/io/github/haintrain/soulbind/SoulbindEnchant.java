@@ -80,21 +80,22 @@ public class SoulbindEnchant extends Enchantment{
 
     public static ItemStack addBound(ItemStack item)
     {
-        Enchantment glow = getBound();
+        Enchantment ench = getBound();
 
-        if(!item.containsEnchantment(glow))
-            item.addUnsafeEnchantment(glow, 1);
+        if(!item.containsEnchantment(ench))
+            item.addUnsafeEnchantment(ench, 1);
 
         return item;
     }
 
     public static ItemStack removeBound(ItemStack item)
     {
-        Enchantment glow = getBound();
+        Enchantment ench = getBound();
 
-        if(item.containsEnchantment(glow))
-            item.removeEnchantment(glow);
+        if(item.containsEnchantment(ench))
+            item.removeEnchantment(ench);
 
         return item;
     }
+
 }

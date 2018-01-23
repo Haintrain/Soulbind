@@ -86,7 +86,37 @@ public class Soulbind extends JavaModule implements ObeliskListener{
         else{
             player.sendMessage("Not enough token");
         }
+    }
 
+    @SuppressWarnings("deprecation")
+    @OCmd(cmd = "unsoulbind", info = "Makes item soulbound to you")
+    void commandUnbind(Player player) {
+        UUID uuid = player.getUniqueId();
+        UserMask u = User.getMask(this, uuid);
+
+        Integer token = u.getVarElseSetDefault("token", 0);
+
+        if(token > 0){
+            if(player.getInventory().getItemInMainHand() instanceof ItemStack){
+                if (player.getInventory().getItemInMainHand().getAmount() > 1) {
+                    player.sendMessage("Maximum stack size for soulbound items is one.");
+                }
+                else if(player.getInventory().getItemInMainHand().containsEnchantment(Enchantment.getByName("Soulbound"))) {
+                    ItemStack item = player.getInventory().getItemInMainHand();
+                    ItemMeta itemmeta = item.getItemMeta();
+                    ArrayList<String> lore = new ArrayList<String>();
+                    item.setItemMeta(itemmeta);
+
+                    player.getInventory().setItemInMainHand(SoulbindEnchant.removeBound(item));
+                }
+                else {
+                    player.sendMessage("This item is already unsoulbound");
+                }
+            }
+        }
+        else{
+            player.sendMessage("Not enough token");
+        }
     }
 
     @OCmd(cmd = "tokens", info = "View token")
