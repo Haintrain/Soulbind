@@ -13,13 +13,11 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
-import org.bukkit.event.inventory.ClickType;
-import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryDragEvent;
-import org.bukkit.event.inventory.InventoryMoveItemEvent;
+import org.bukkit.event.inventory.*;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -31,11 +29,20 @@ public class Soulbind extends JavaModule implements ObeliskListener{
     private static transient Soulbind instance;
     private transient CrownPurchase token;
 
+    void setToken(Player player){
+        UUID uuid = player.getUniqueId();
+        UserMask u = User.getMask(this, uuid);
+
+        Integer token = u.getVarElseSetDefault("token", 0);
+        u.setVar("token", token + 10);
+    }
+
+
     @Override
     public void onEnable() {
         Obelisk.registerCommands(this, this);
         instance = this;
-        token = CrownAPI.buildPurchase("Test token", CrownIcon.build("More Test", Material.LEATHER_BOOTS)
+        token = CrownAPI.buildPurchase("Test Token", CrownIcon.build("More Test", Material.LEATHER_BOOTS)
                 .setDesc("Test")
                 .build(), 500, player -> {
             setToken(player);
@@ -48,15 +55,10 @@ public class Soulbind extends JavaModule implements ObeliskListener{
 
     }
 
-    public static boolean isSoulbound(ItemStack item){
-        return item.containsEnchantment(Enchantment.getByName("Soulbound"));
-    }
-
     public static Soulbind getInstance() {
         return instance;
     }
 
-    @SuppressWarnings("deprecation")
     @OCmd(cmd = "soulbind", info = "Makes item soulbound to you")
     void commandBind(Player player) {
         UUID uuid = player.getUniqueId();
@@ -88,7 +90,6 @@ public class Soulbind extends JavaModule implements ObeliskListener{
         }
     }
 
-    @SuppressWarnings("deprecation")
     @OCmd(cmd = "unsoulbind", info = "Makes item soulbound to you")
     void commandUnbind(Player player) {
         UUID uuid = player.getUniqueId();
@@ -129,13 +130,6 @@ public class Soulbind extends JavaModule implements ObeliskListener{
         player.sendMessage("You have this many soulbind token: " + Integer.toString(token)) ;
     }
 
-    void setToken(Player player){
-        UUID uuid = player.getUniqueId();
-        UserMask u = User.getMask(this, uuid);
-
-        Integer token = u.getVarElseSetDefault("token", 0);
-        u.setVar("token", token + 1);
-    }
 
     @EventHandler
     void onItemDrop(PlayerDropItemEvent event){
@@ -147,13 +141,11 @@ public class Soulbind extends JavaModule implements ObeliskListener{
     }
 
     @EventHandler
-    void onMoveDrop(InventoryDragEvent event){
-        if(event.getCursor() != null) {
-            ItemStack item = event.getCursor();
+    void onItemDrag(InventoryDragEvent event){
+        ItemStack item = event.getOldCursor();
 
-            if (isSoulbound(item)) {
-                event.setCancelled(true);
-            }
+        if (isSoulbound(item)) {
+            event.setCancelled(true);
         }
     }
 
@@ -179,20 +171,25 @@ public class Soulbind extends JavaModule implements ObeliskListener{
     public void onInventoryClick(InventoryClickEvent event){
         ItemStack item = event.getCurrentItem();
         Integer slot = event.getSlot();
+        Player player = (Player) event.getWhoClicked();
+        Inventory inv = event.getClickedInventory();
+        Inventory top = player.getOpenInventory().getTopInventory();
 
-        if(event.getClick() == ClickType.SHIFT_RIGHT) {
+        if((isArmor(item.getType()) && (event.getClick() == ClickType.SHIFT_RIGHT || event.getClick() == ClickType.SHIFT_LEFT)) || ((event.getClick() == ClickType.SHIFT_RIGHT || event.getClick() == ClickType.SHIFT_LEFT) && top.getType() != InventoryType.CRAFTING)) {
             if (isSoulbound(item)) {
                 event.setCancelled(true);
             }
         }
 
-        if(slot >= 100 && slot <= 103 ){
+        if(event.getClickedInventory() != player.getInventory()){
+            item = event.getCursor();
             if (isSoulbound(item)) {
                 event.setCancelled(true);
             }
         }
 
-        if(slot >= 80 && slot <= 83){
+        if(event.getSlotType() == InventoryType.SlotType.ARMOR){
+            item = event.getCursor();
             if (isSoulbound(item)) {
                 event.setCancelled(true);
             }
@@ -202,22 +199,30 @@ public class Soulbind extends JavaModule implements ObeliskListener{
     @EventHandler
     void onPlayerDeath(PlayerDeathEvent event){
         ItemStack [] inventory;
-        ArrayList<ItemStack> inventoryKeep = new ArrayList<ItemStack>();
+        List<ItemStack> inventoryKeep = new ArrayList<ItemStack>();
 
         Player player = event.getEntity();
         UserMask u = User.getMask(this, player.getUniqueId());
+        Boolean remove = true;
 
+        player.sendMessage(event.getDrops().toString());
 
-        for(ItemStack item : event.getDrops()){
+        while (remove) {
+            remove = false;
+            for(ItemStack item : event.getDrops()){
             ItemMeta meta = item.getItemMeta();
-            if(isSoulbound(item)){
+            if(isSoulbound(item)) {
                 inventoryKeep.add(item);
                 event.getDrops().remove(item);
+                remove = true;
+                break;
+            }
             }
         }
 
         if (inventoryKeep.size() > 0) {
             u.setVar("items", inventoryKeep);
+            player.sendMessage(inventoryKeep.toString());
         }
     }
 
@@ -227,8 +232,42 @@ public class Soulbind extends JavaModule implements ObeliskListener{
         Player player = event.getPlayer();
         UserMask u = User.getMask(this, player.getUniqueId());
 
-        ArrayList<ItemStack> items = u.getVarElseSetDefault( "items", null);
+        ArrayList<ItemStack> items = u.getVarElseSetDefault("items", null);
         Optional.ofNullable(items).ifPresent(value -> {for(ItemStack item: value){player.getInventory().addItem(item);}});
+    }
+
+    private boolean isSoulbound(ItemStack item){
+        return item.containsEnchantment(Enchantment.getByName("Soulbound"));
+    }
+
+    private boolean isArmor(Material mat) {
+        switch (mat) {
+            case JACK_O_LANTERN:
+            case GOLD_HELMET:
+            case GOLD_BOOTS:
+            case GOLD_CHESTPLATE:
+            case GOLD_LEGGINGS:
+            case LEATHER_HELMET:
+            case LEATHER_CHESTPLATE:
+            case LEATHER_BOOTS:
+            case LEATHER_LEGGINGS:
+            case CHAINMAIL_HELMET:
+            case CHAINMAIL_BOOTS:
+            case CHAINMAIL_CHESTPLATE:
+            case CHAINMAIL_LEGGINGS:
+            case IRON_HELMET:
+            case IRON_BOOTS:
+            case IRON_CHESTPLATE:
+            case IRON_LEGGINGS:
+            case DIAMOND_HELMET:
+            case DIAMOND_BOOTS:
+            case DIAMOND_CHESTPLATE:
+            case DIAMOND_LEGGINGS:
+            case ELYTRA:
+                return true;
+            default:
+                return false;
+        }
     }
 }
 
