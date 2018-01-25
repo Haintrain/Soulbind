@@ -1,6 +1,7 @@
 package io.github.haintrain.soulbind;
 
 import net.minegrid.module.crowns.CrownAPI;
+import net.minegrid.module.crowns.CrownEmporium;
 import net.minegrid.module.crowns.CrownIcon;
 import net.minegrid.module.crowns.CrownPurchase;
 import net.minegrid.obelisk.api.*;
@@ -23,20 +24,11 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.*;
 
-@Info(name = "Test", version = "1.0", color = ChatColor.WHITE, displayName = "Test")
+@Info(name = "Test", version = "1.0", color = ChatColor.WHITE, displayName = "Test", dependencies = {CrownEmporium.class })
 public class Soulbind extends JavaModule implements ObeliskListener{
 
     private static transient Soulbind instance;
     private transient CrownPurchase token;
-
-    void setToken(Player player){
-        UUID uuid = player.getUniqueId();
-        UserMask u = User.getMask(this, uuid);
-
-        Integer token = u.getVarElseSetDefault("token", 0);
-        u.setVar("token", token + 10);
-    }
-
 
     @Override
     public void onEnable() {
@@ -119,6 +111,16 @@ public class Soulbind extends JavaModule implements ObeliskListener{
             player.sendMessage("Not enough token");
         }
     }
+
+
+    void setToken(Player player){
+        UUID uuid = player.getUniqueId();
+        UserMask u = User.getMask(this, uuid);
+
+        Integer token = u.getVarElseSetDefault("token", 0);
+        u.setVar("token", token + 10);
+    }
+
 
     @OCmd(cmd = "tokens", info = "View token")
     void getToken(Player player) {
