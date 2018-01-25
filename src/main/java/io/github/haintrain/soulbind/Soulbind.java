@@ -13,6 +13,8 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityShootBowEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.inventory.*;
 import org.bukkit.event.player.PlayerDropItemEvent;
@@ -168,6 +170,29 @@ public class Soulbind extends JavaModule implements ObeliskListener{
             event.setCancelled(true);
         }
     }
+
+    @EventHandler
+    void onPlayerDamageEntity(EntityDamageByEntityEvent event) {
+        if (event.getDamager() instanceof Player) {
+            Player player = (Player) event.getDamager();
+            if (isSoulbound(player.getInventory().getItemInMainHand())) {
+                event.setCancelled(true);
+            }
+        }
+    }
+
+    @EventHandler
+    void onBowShoot(final EntityShootBowEvent event) {
+        if (event.getEntity() instanceof Player) {
+            Player player = (Player) event.getEntity();
+            Integer first = player.getInventory().first(Material.ARROW);
+            ItemStack item = player.getInventory().getItem(first);
+            if (isSoulbound(item)){
+                event.setCancelled(true);
+            }
+        }
+    }
+
 
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event){
