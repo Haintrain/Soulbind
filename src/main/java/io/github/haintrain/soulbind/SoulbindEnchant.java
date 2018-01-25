@@ -55,8 +55,7 @@ public class SoulbindEnchant extends Enchantment{
     }
 
 
-    public static Enchantment getBound()
-    {
+    public static Enchantment getBound(){
         if (bound != null) return bound;
 
         if(Enchantment.getByName("Soulbound") != null)
@@ -73,13 +72,12 @@ public class SoulbindEnchant extends Enchantment{
             e.printStackTrace();
         }
 
-        bound = new SoulbindEnchant(255);
+        bound = new SoulbindEnchant(101);
         Enchantment.registerEnchantment(bound);
         return bound;
     }
 
-    public static ItemStack addBound(ItemStack item)
-    {
+    public static ItemStack addBound(ItemStack item){
         Enchantment ench = getBound();
 
         if(!item.containsEnchantment(ench))
@@ -88,14 +86,19 @@ public class SoulbindEnchant extends Enchantment{
         return item;
     }
 
-    public static ItemStack removeBound(ItemStack item)
-    {
+    public static ItemStack removeBound(ItemStack item){
         Enchantment ench = getBound();
 
         if(item.containsEnchantment(ench))
             item.removeEnchantment(ench);
 
         return item;
+    }
+
+    public static boolean isSoulbound(ItemStack item){
+        Enchantment ench = getBound();
+
+        return item.containsEnchantment(ench);
     }
 
 }

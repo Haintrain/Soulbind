@@ -14,6 +14,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityShootBowEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.inventory.*;
@@ -26,6 +27,8 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.*;
 
+import static io.github.haintrain.soulbind.SoulbindEnchant.isSoulbound;
+
 @Info(name = "Test", version = "1.0", color = ChatColor.WHITE, displayName = "Test", dependencies = {CrownEmporium.class })
 public class Soulbind extends JavaModule implements ObeliskListener{
 
@@ -35,6 +38,7 @@ public class Soulbind extends JavaModule implements ObeliskListener{
 
     @Override
     public void onEnable() {
+        SoulbindEnchant.getBound();
         Obelisk.registerCommands(this, this);
         instance = this;
         token = CrownAPI.buildPurchase("Test Token", CrownIcon.build("More Test", Material.LEATHER_BOOTS)
@@ -198,9 +202,7 @@ public class Soulbind extends JavaModule implements ObeliskListener{
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event){
         ItemStack item = event.getCurrentItem();
-        Integer slot = event.getSlot();
         Player player = (Player) event.getWhoClicked();
-        Inventory inv = event.getClickedInventory();
         Inventory top = player.getOpenInventory().getTopInventory();
 
         if((isArmor(item.getType()) && (event.getClick() == ClickType.SHIFT_RIGHT || event.getClick() == ClickType.SHIFT_LEFT)) || ((event.getClick() == ClickType.SHIFT_RIGHT || event.getClick() == ClickType.SHIFT_LEFT) && top.getType() != InventoryType.CRAFTING)) {
@@ -226,6 +228,14 @@ public class Soulbind extends JavaModule implements ObeliskListener{
 
     @EventHandler
     void onPlayerDeath(PlayerDeathEvent event){
+        Boolean playerKilled = false;
+
+        if(event.getEntity().getLastDamageCause().getCause() == EntityDamageEvent.DamageCause.ENTITY_ATTACK){
+            if(event.getEntity() instanceof Player){
+                playerKilled = true;
+            }
+        }
+
         ItemStack [] inventory;
         List<ItemStack> inventoryKeep = new ArrayList<ItemStack>();
 
@@ -264,9 +274,7 @@ public class Soulbind extends JavaModule implements ObeliskListener{
         Optional.ofNullable(items).ifPresent(value -> {for(ItemStack item: value){player.getInventory().addItem(item);}});
     }
 
-    private boolean isSoulbound(ItemStack item){
-        return item.containsEnchantment(Enchantment.getByName("Soulbound"));
-    }
+
 
     private boolean isArmor(Material mat) {
         switch (mat) {
