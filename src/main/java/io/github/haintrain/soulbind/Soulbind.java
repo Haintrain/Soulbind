@@ -29,6 +29,7 @@ import java.util.*;
 @Info(name = "Test", version = "1.0", color = ChatColor.WHITE, displayName = "Test", dependencies = {CrownEmporium.class })
 public class Soulbind extends JavaModule implements ObeliskListener{
 
+    public SoulbindEnchant ench = new SoulbindEnchant(101);
     private static transient Soulbind instance;
     private transient CrownPurchase token;
 
@@ -44,9 +45,7 @@ public class Soulbind extends JavaModule implements ObeliskListener{
         CrownAPI.addPurchase(token);
     }
 
-    @SuppressWarnings("unchecked")
     public void onDisable() {
-
     }
 
     public static Soulbind getInstance() {
@@ -164,10 +163,12 @@ public class Soulbind extends JavaModule implements ObeliskListener{
 
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent event){
-        ItemStack item = event.getItem();
+        if(event.getItem() != null) {
+            ItemStack item = event.getItem();
 
-        if(isSoulbound(item)){
-            event.setCancelled(true);
+            if (isSoulbound(item)) {
+                event.setCancelled(true);
+            }
         }
     }
 

@@ -59,8 +59,8 @@ public class SoulbindEnchant extends Enchantment{
     {
         if (bound != null) return bound;
 
-        if(Enchantment.getByName("Glow") != null)
-            return Enchantment.getByName("Glow");
+        if(Enchantment.getByName("Soulbound") != null)
+            return Enchantment.getByName("Soulbound");
 
         try
         {
