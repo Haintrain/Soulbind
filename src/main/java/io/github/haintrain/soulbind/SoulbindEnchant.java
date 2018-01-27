@@ -31,7 +31,7 @@ public class SoulbindEnchant extends Enchantment{
 
     @Override
     public int getMaxLevel() {
-        return 4;
+        return 2    ;
     }
 
     @Override
@@ -40,7 +40,9 @@ public class SoulbindEnchant extends Enchantment{
     }
 
     @Override
-    public int getStartLevel() { return 1; }
+    public int getStartLevel() {
+        return 1;
+    }
 
     @Override
     public boolean isCursed() {
@@ -53,7 +55,7 @@ public class SoulbindEnchant extends Enchantment{
     }
 
 
-    public static Enchantment getBound() {
+    public static Enchantment getBound(){
         if (bound != null) return bound;
 
         if(Enchantment.getByName("Soulbound") != null)
@@ -75,16 +77,16 @@ public class SoulbindEnchant extends Enchantment{
         return bound;
     }
 
-    public static ItemStack addBound(ItemStack item, Integer lvl) {
+    public static ItemStack addBound(ItemStack item){
         Enchantment ench = getBound();
 
         if(!item.containsEnchantment(ench))
-            item.addUnsafeEnchantment(ench, lvl);
+            item.addUnsafeEnchantment(ench, 1);
 
         return item;
     }
 
-    public static ItemStack removeBound(ItemStack item) {
+    public static ItemStack removeBound(ItemStack item){
         Enchantment ench = getBound();
 
         if(item.containsEnchantment(ench))

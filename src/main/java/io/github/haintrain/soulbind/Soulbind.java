@@ -56,18 +56,10 @@ public class Soulbind extends JavaModule implements ObeliskListener{
         return instance;
     }
 
-    @OCmd(cmd = "soulbind *", info = "Makes item soulbound to you")
-    void commandBind(Player player, String args[]) {
+    @OCmd(cmd = "soulbind", info = "Makes item soulbound to you")
+    void commandBind(Player player) {
         UUID uuid = player.getUniqueId();
         UserMask u = User.getMask(this, uuid);
-        Integer lvl = 1;
-
-        if(args[0].equals(0) || args[0].equals(1) || args[0].equals(2) || args[0].equals(3) || args[0].equals(4)) {
-            lvl = Integer.parseInt(args[0]);
-        }
-        else{
-            return;
-        }
 
         Integer token = u.getVarElseSetDefault("token", 0);
 
@@ -76,7 +68,7 @@ public class Soulbind extends JavaModule implements ObeliskListener{
                 if (player.getInventory().getItemInMainHand().getAmount() > 1) {
                     player.sendMessage("Maximum stack size for soulbound items is one.");
                 }
-                else if(isSoulbound(player.getInventory().getItemInMainHand())) {
+                else if(player.getInventory().getItemInMainHand().containsEnchantment(Enchantment.getByName("Soulbound"))) {
                     player.sendMessage("This item is already soulbound");
                 }
                 else {
@@ -86,7 +78,7 @@ public class Soulbind extends JavaModule implements ObeliskListener{
                     item.setItemMeta(itemmeta);
                     u.setVar("token", token - 1);
 
-                    player.getInventory().setItemInMainHand(SoulbindEnchant.addBound(item, 1));
+                    player.getInventory().setItemInMainHand(SoulbindEnchant.addBound(item));
                 }
             }
         }
@@ -102,22 +94,26 @@ public class Soulbind extends JavaModule implements ObeliskListener{
 
         Integer token = u.getVarElseSetDefault("token", 0);
 
-        if(player.getInventory().getItemInMainHand() instanceof ItemStack){
-            if (player.getInventory().getItemInMainHand().getAmount() > 1) {
-                player.sendMessage("Maximum stack size for soulbound items is one.");
-            }
-            else if(player.getInventory().getItemInMainHand().containsEnchantment(Enchantment.getByName("Soulbound"))) {
-                ItemStack item = player.getInventory().getItemInMainHand();
-                ItemMeta itemmeta = item.getItemMeta();
-                ArrayList<String> lore = new ArrayList<String>();
-                item.setItemMeta(itemmeta);
-                u.setVar("token", token + 1);
+        if(token > 0){
+            if(player.getInventory().getItemInMainHand() instanceof ItemStack){
+                if (player.getInventory().getItemInMainHand().getAmount() > 1) {
+                    player.sendMessage("Maximum stack size for soulbound items is one.");
+                }
+                else if(player.getInventory().getItemInMainHand().containsEnchantment(Enchantment.getByName("Soulbound"))) {
+                    ItemStack item = player.getInventory().getItemInMainHand();
+                    ItemMeta itemmeta = item.getItemMeta();
+                    ArrayList<String> lore = new ArrayList<String>();
+                    item.setItemMeta(itemmeta);
 
-                player.getInventory().setItemInMainHand(SoulbindEnchant.removeBound(item));
+                    player.getInventory().setItemInMainHand(SoulbindEnchant.removeBound(item));
+                }
+                else {
+                    player.sendMessage("This item is already unsoulbound");
+                }
             }
-            else {
-                player.sendMessage("This item is already unsoulbound");
-            }
+        }
+        else{
+            player.sendMessage("Not enough token");
         }
     }
 
@@ -138,7 +134,7 @@ public class Soulbind extends JavaModule implements ObeliskListener{
 
         Integer token = u.getVarElseSetDefault("token", 0);
 
-        player.sendMessage("You have this many soulbind token: " + Integer.toString(token));
+        player.sendMessage("You have this many soulbind token: " + Integer.toString(token)) ;
     }
 
 
@@ -198,7 +194,6 @@ public class Soulbind extends JavaModule implements ObeliskListener{
             ItemStack item = player.getInventory().getItem(first);
             if (isSoulbound(item)){
                 event.setCancelled(true);
-                player.updateInventory();
             }
         }
     }
@@ -235,7 +230,6 @@ public class Soulbind extends JavaModule implements ObeliskListener{
     void onPlayerDeath(PlayerDeathEvent event){
         Boolean playerKilled = false;
 
-
         if(event.getEntity().getLastDamageCause().getCause() == EntityDamageEvent.DamageCause.ENTITY_ATTACK){
             if(event.getEntity() instanceof Player){
                 playerKilled = true;
@@ -256,33 +250,11 @@ public class Soulbind extends JavaModule implements ObeliskListener{
             for(ItemStack item : event.getDrops()){
             ItemMeta meta = item.getItemMeta();
             if(isSoulbound(item)) {
-                Integer lvl = getEnchLevel(item);
-
-                switch(lvl) {
-                    case 1:
-                        if(playerKilled == false) {
-                            inventoryKeep.add(item);
-                            event.getDrops().remove(item);
-                        }
-                        break;
-                    case 2:
-                        item.removeEnchantment(ench);
-                        inventoryKeep.add(item);
-                        event.getDrops().remove(item);
-                        break;
-                    case 3:
-                        inventoryKeep.add(item);
-                        event.getDrops().remove(item);
-                        break;
-                    case 4:
-                        inventoryKeep.add(item);
-                        event.getDrops().remove(item);
-                        break;
-                }
-
+                inventoryKeep.add(item);
+                event.getDrops().remove(item);
                 remove = true;
                 break;
-                }
+            }
             }
         }
 
@@ -294,16 +266,12 @@ public class Soulbind extends JavaModule implements ObeliskListener{
 
     @EventHandler
     public void onPlayerSpawn(PlayerRespawnEvent event) {
+
         Player player = event.getPlayer();
         UserMask u = User.getMask(this, player.getUniqueId());
 
         ArrayList<ItemStack> items = u.getVarElseSetDefault("items", null);
         Optional.ofNullable(items).ifPresent(value -> {for(ItemStack item: value){player.getInventory().addItem(item);}});
-    }
-
-    public Integer getEnchLevel(ItemStack item){
-        Integer lvl = item.getEnchantmentLevel(ench);
-        return lvl;
     }
 
 
