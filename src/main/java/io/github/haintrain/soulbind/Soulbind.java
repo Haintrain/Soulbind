@@ -111,7 +111,8 @@ public class Soulbind extends JavaModule implements ObeliskListener{
                 ItemMeta itemmeta = item.getItemMeta();
                 ArrayList<String> lore = new ArrayList<String>();
                 item.setItemMeta(itemmeta);
-                u.setVar("token", token + 1);
+                Integer lvl = getEnchLevel(item);
+                u.setVar("token", token + lvl);
 
                 player.getInventory().setItemInMainHand(SoulbindEnchant.removeBound(item));
             }
