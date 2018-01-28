@@ -86,7 +86,7 @@ public class Soulbind extends JavaModule implements ObeliskListener{
                     item.setItemMeta(itemmeta);
                     u.setVar("token", token - 1);
 
-                    player.getInventory().setItemInMainHand(SoulbindEnchant.addBound(item, 1));
+                    player.getInventory().setItemInMainHand(SoulbindEnchant.addBound(item, lvl));
                 }
             }
         }
@@ -148,6 +148,7 @@ public class Soulbind extends JavaModule implements ObeliskListener{
 
         if(isSoulbound(item)){
             event.setCancelled(true);
+            event.getPlayer().sendMessage(ChatColor.DARK_RED + "You cannot throw out soulbound items!");
         }
     }
 
@@ -157,6 +158,7 @@ public class Soulbind extends JavaModule implements ObeliskListener{
 
         if (isSoulbound(item)) {
             event.setCancelled(true);
+            event.getWhoClicked().sendMessage(ChatColor.DARK_PURPLE + "You cannot move soulbound items to chests or storage.");
         }
     }
 
@@ -166,6 +168,7 @@ public class Soulbind extends JavaModule implements ObeliskListener{
 
         if(isSoulbound(item)){
             event.setCancelled(true);
+            event.getPlayer().sendMessage(ChatColor.RED + "This item can not be placed, it is bound too tightly.");
         }
     }
 
@@ -176,6 +179,7 @@ public class Soulbind extends JavaModule implements ObeliskListener{
 
             if (isSoulbound(item)) {
                 event.setCancelled(true);
+                event.getPlayer().sendMessage(ChatColor.RED + "This item can not be used, it is bound too tightly.");
             }
         }
     }
@@ -186,6 +190,7 @@ public class Soulbind extends JavaModule implements ObeliskListener{
             Player player = (Player) event.getDamager();
             if (isSoulbound(player.getInventory().getItemInMainHand())) {
                 event.setCancelled(true);
+                event.getDamager().sendMessage(ChatColor.RED + "This item can not be used, it is bound too tightly.");
             }
         }
     }
@@ -198,6 +203,7 @@ public class Soulbind extends JavaModule implements ObeliskListener{
             ItemStack item = player.getInventory().getItem(first);
             if (isSoulbound(item)){
                 event.setCancelled(true);
+                event.getEntity().sendMessage(ChatColor.RED + "Why did you even soulbind an arrow? You can't use it");
                 player.updateInventory();
             }
         }
@@ -213,6 +219,7 @@ public class Soulbind extends JavaModule implements ObeliskListener{
         if((isArmor(item.getType()) && (event.getClick() == ClickType.SHIFT_RIGHT || event.getClick() == ClickType.SHIFT_LEFT)) || ((event.getClick() == ClickType.SHIFT_RIGHT || event.getClick() == ClickType.SHIFT_LEFT) && top.getType() != InventoryType.CRAFTING)) {
             if (isSoulbound(item)) {
                 event.setCancelled(true);
+                player.sendMessage(ChatColor.DARK_PURPLE + "You cannot move soulbound items to chests or storage or equip as armor.");
             }
         }
 
@@ -220,6 +227,7 @@ public class Soulbind extends JavaModule implements ObeliskListener{
             item = event.getCursor();
             if (isSoulbound(item)) {
                 event.setCancelled(true);
+                player.sendMessage(ChatColor.DARK_PURPLE + "You cannot move soulbound items to chests or storage.");
             }
         }
 
@@ -227,6 +235,7 @@ public class Soulbind extends JavaModule implements ObeliskListener{
             item = event.getCursor();
             if (isSoulbound(item)) {
                 event.setCancelled(true);
+                player.sendMessage(ChatColor.DARK_PURPLE + "You cannot move soulbound items to chests or storage.");
             }
         }
     }
