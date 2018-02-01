@@ -29,7 +29,7 @@ import java.util.*;
 
 import static io.github.haintrain.soulbind.SoulbindEnchant.isSoulbound;
 
-@Info(name = "Test", version = "1.0", color = ChatColor.WHITE, displayName = "Test", dependencies = {CrownEmporium.class })
+@Info(name = "Soulbind", version = "1.0", color = ChatColor.WHITE, displayName = "Soulbind", dependencies = {CrownEmporium.class })
 public class Soulbind extends JavaModule implements ObeliskListener{
 
     public SoulbindEnchant ench = new SoulbindEnchant(101);
@@ -62,10 +62,10 @@ public class Soulbind extends JavaModule implements ObeliskListener{
         UserMask u = User.getMask(this, uuid);
         Integer lvl = 1;
 
-        if(args[0].equals(0) || args[0].equals(1) || args[0].equals(2) || args[0].equals(3) || args[0].equals(4)) {
+        if(args[0].equals("1") || args[0].equals("2") || args[0].equals("3") || args[0].equals("4")) {
             lvl = Integer.parseInt(args[0]);
         }
-        else{
+        else if(args[0].equals("force")){
             return;
         }
 
@@ -84,7 +84,7 @@ public class Soulbind extends JavaModule implements ObeliskListener{
                     ItemMeta itemmeta = item.getItemMeta();
                     ArrayList<String> lore = new ArrayList<String>();
                     item.setItemMeta(itemmeta);
-                    u.setVar("token", token - 1);
+                    u.setVar("token", token - lvl);
 
                     player.getInventory().setItemInMainHand(SoulbindEnchant.addBound(item, lvl));
                 }
@@ -112,7 +112,9 @@ public class Soulbind extends JavaModule implements ObeliskListener{
                 ArrayList<String> lore = new ArrayList<String>();
                 item.setItemMeta(itemmeta);
                 Integer lvl = getEnchLevel(item);
-                u.setVar("token", token + lvl);
+                if(lvl > 1) {
+                    u.setVar("token", token + lvl);
+                }
 
                 player.getInventory().setItemInMainHand(SoulbindEnchant.removeBound(item));
             }
@@ -128,7 +130,7 @@ public class Soulbind extends JavaModule implements ObeliskListener{
         UserMask u = User.getMask(this, uuid);
 
         Integer token = u.getVarElseSetDefault("token", 0);
-        u.setVar("token", token + 10);
+        u.setVar("token", token + 1);
     }
 
 
@@ -217,6 +219,10 @@ public class Soulbind extends JavaModule implements ObeliskListener{
         Player player = (Player) event.getWhoClicked();
         Inventory top = player.getOpenInventory().getTopInventory();
 
+        if(item == null){
+            return;
+        }
+
         if((isArmor(item.getType()) && (event.getClick() == ClickType.SHIFT_RIGHT || event.getClick() == ClickType.SHIFT_LEFT)) || ((event.getClick() == ClickType.SHIFT_RIGHT || event.getClick() == ClickType.SHIFT_LEFT) && top.getType() != InventoryType.CRAFTING)) {
             if (isSoulbound(item)) {
                 event.setCancelled(true);
@@ -274,6 +280,7 @@ public class Soulbind extends JavaModule implements ObeliskListener{
                             inventoryKeep.add(item);
                             event.getDrops().remove(item);
                         }
+                        item.removeEnchantment(ench);
                         break;
                     case 2:
                         item.removeEnchantment(ench);
