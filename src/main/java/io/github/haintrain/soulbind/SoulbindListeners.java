@@ -45,7 +45,6 @@ public class SoulbindListeners implements Listener{
         UUID uuid = player.getUniqueId();
         UserMask u = User.getMask(mod, uuid);
         Boolean override = u.getVarElseSetDefault("soulbindOverride", false);
-        player.sendMessage(override.toString());
 
         if(isSoulbound(item) && !override){
             event.setCancelled(true);
@@ -61,7 +60,6 @@ public class SoulbindListeners implements Listener{
         UUID uuid = player.getUniqueId();
         UserMask u = User.getMask(mod, uuid);
         Boolean override = u.getVarElseSetDefault("soulbindOverride", false);
-
 
         if (isSoulbound(item) && !override) {
             event.setCancelled(true);

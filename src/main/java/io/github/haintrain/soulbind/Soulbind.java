@@ -155,8 +155,6 @@ public class Soulbind extends JavaModule implements ObeliskListener{
 
     @OCmd(cmd = "override %P", info = "Override soulbound", perm = "soulbind.override")
     void overrideSoulbind(Player player, String args[]) {
-        player.sendMessage("test");
-
         for (Player pl : player.getWorld().getPlayers()) {
             String name = ChatColor.stripColor(pl.getPlayerListName());
 
@@ -168,11 +166,11 @@ public class Soulbind extends JavaModule implements ObeliskListener{
 
                 if(!test){
                     u.setVarTemp("soulbindOverride", true);
-                    player.sendMessage("Soulbind override for " + name + " has been toggled on");
+                    player.sendMessage(ChatColor.BLUE + "Soulbind Override For: " + name + ", has been toggled on");
                 }
                 else {
                     u.setVarTemp("soulbindOverride", false);
-                    player.sendMessage("Soulbind override for " + name + " has been toggled off");
+                    player.sendMessage(ChatColor.BLUE + "Soulbind Override For: " + name + ", has been toggled off");
                 }
             }
         }
