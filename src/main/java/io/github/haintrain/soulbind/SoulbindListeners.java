@@ -192,7 +192,7 @@ public class SoulbindListeners implements Listener{
                 if(isSoulbound(item)) {
                     Integer lvl = getEnchLevel(item);
 
-                    switch(lvl) {
+                    /*switch(lvl) {
                         case 1:
                             if(!playerKilled) {
                                 inventoryKeep.add(item);
@@ -210,6 +210,18 @@ public class SoulbindListeners implements Listener{
                             event.getDrops().remove(item);
                             break;
                         case 4:
+                            inventoryKeep.add(item);
+                            event.getDrops().remove(item);
+                            break;
+                    }*/
+
+                    switch(lvl) {
+                        case 1:
+                            item.removeEnchantment(ench);
+                            inventoryKeep.add(item);
+                            event.getDrops().remove(item);
+                            break;
+                        case 2:
                             inventoryKeep.add(item);
                             event.getDrops().remove(item);
                             break;
