@@ -7,8 +7,10 @@
     <groupId>io.github.haintrain.soulbind</groupId>
     <artifactId>Soulbind</artifactId>
     <version>1.0-SNAPSHOT</version>
+    <name>Soulbind</name>
 
     <build>
+        <finalName>${project.name}</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
