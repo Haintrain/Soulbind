@@ -32,7 +32,7 @@ public class Soulbind extends JavaModule implements ObeliskListener{
     @Override
     public void onEnable() {
         SoulbindEnchant.getBound();
-        Obelisk.registerCommands(this, this);
+        Obelisk.registerCommands(new SoulbindCommand(ench, this), this);
         instance = this;
 
         registerEvents(new SoulbindListeners(ench, this));
@@ -77,7 +77,7 @@ public class Soulbind extends JavaModule implements ObeliskListener{
             String permission = perm.getPermission();
             if(permission.startsWith("soulbind.bind.")){
                 String[] permSplit = permission.split(".");
-                int max = Integer.parseInt(permSplit[3]);
+                int max = Integer.parseInt(permSplit[2]);
 
                 u.setVarTemp("bindMax", max);
             }

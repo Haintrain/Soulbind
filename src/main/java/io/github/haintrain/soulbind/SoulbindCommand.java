@@ -7,17 +7,19 @@ import net.minegrid.obelisk.api.User;
 import net.minegrid.obelisk.api.UserMask;
 import net.minegrid.obelisk.api.command.OCmd;
 import net.minegrid.obelisk.api.command.OCmdMod;
+import net.minegrid.obelisk.api.command.ObeliskListener;
 import org.bukkit.ChatColor;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.permissions.PermissionAttachmentInfo;
 
 import java.util.UUID;
 
 import static io.github.haintrain.soulbind.SoulbindEnchant.isSoulbound;
 
-@OCmdMod(baseCmd = "soulbind")
-public class SoulbindCommand {
+@OCmdMod(baseCmd = "soulbind/sb")
+public class SoulbindCommand implements ObeliskListener{
 
     private SoulbindEnchant ench;
     private Module mod;
@@ -27,14 +29,19 @@ public class SoulbindCommand {
         this.mod = mod;
     }
 
-    @OCmd(cmd = "*", info = "Makes item soulbound to you")
+    @OCmd(cmd = "bind *", info = "Makes item soulbound to you")
     void commandBind(Player player, String args[]) {
         UUID uuid = player.getUniqueId();
         UserMask u = User.getMask(mod, uuid);
 
         Integer token = u.getVarElseSetDefault("token", 0);
 
+        player.sendMessage("test");
+
+
         if(token > 0 && args[0] == "token"){
+
+            player.sendMessage("test1");
             if(player.getInventory().getItemInMainHand() != null){
                 if (player.getInventory().getItemInMainHand().getAmount() > 1) {
                     player.sendMessage("Maximum stack size for soulbound items is one.");
@@ -50,6 +57,8 @@ public class SoulbindCommand {
 
                     u.setVar("token", token - 1);
 
+
+
                     player.getInventory().setItemInMainHand(SoulbindEnchant.addBound(item, 1));
                 }
             }
@@ -62,6 +71,8 @@ public class SoulbindCommand {
         Integer bindCurrent = u.getVarElseSetDefault("bindCurrent", 0);
 
         if(bindCurrent < bindMax && args[0] == "natural"){
+
+            player.sendMessage("test2");
             if(player.getInventory().getItemInMainHand() != null){
                 if (player.getInventory().getItemInMainHand().getAmount() > 1) {
                     player.sendMessage("Maximum stack size for soulbound items is one.");
@@ -83,8 +94,8 @@ public class SoulbindCommand {
         }
     }
 
-    @OCmd(cmd = "un", info = "Makes item soulbound to you")
-    void commandUnbind(Player player) {
+    @OCmd(cmd = "unbind", info = "Makes item soulbound to you")
+    void commandUnbind(Player player, String args[]) {
 
         if(player.getInventory().getItemInMainHand() != null){
             if (player.getInventory().getItemInMainHand().getAmount() > 1) {
@@ -100,10 +111,6 @@ public class SoulbindCommand {
                     String uuidToken = tag.get("token");
 
                     UserMask u = User.getMask(mod, UUID.fromString(uuidToken));
-                    Integer token = u.getVarElseSetDefault("token", 0);
-
-                    u.setVar("token", token + 1);
-
 
                     player.getInventory().setItemInMainHand(SoulbindEnchant.removeBound(item));
                 }
@@ -128,13 +135,37 @@ public class SoulbindCommand {
     }
 
     @OCmd(cmd = "tokens", info = "View token")
-    void getToken(Player player) {
+    void getToken(Player player, String args[]) {
         UUID uuid = player.getUniqueId();
         UserMask u = User.getMask(mod, uuid);
 
         Integer token = u.getVarElseSetDefault("token", 0);
 
         player.sendMessage("You have this many soulbind tokens: " + Integer.toString(token));
+    }
+
+    @OCmd(cmd = "natural", info = "View token")
+    void getNatural(Player player, String args[]) {
+        UUID uuid = player.getUniqueId();
+        UserMask u = User.getMask(mod, uuid);
+
+        Integer bindMax = u.getVarElseSetDefault("bindMax", 0);
+        Integer bindCurrent = u.getVarElseSetDefault("bindCurrent", 0);
+
+        player.sendMessage("You have this many soulbind tokens: " + Integer.toString(bindCurrent) + " out of " + Integer.toString(bindMax));
+    }
+
+    @OCmd(cmd = "perms", info = "Debug pemrs")
+    void getPerms(Player player, String args[]){
+        for(PermissionAttachmentInfo perm: player.getEffectivePermissions()){
+            String permission = perm.getPermission();
+            if(permission.startsWith("soulbind.bind.")){
+
+
+            }
+
+            player.sendMessage(permission);
+        }
     }
 
     @OCmd(cmd = "override %P", info = "Override soulbound", perm = "soulbind.override")
