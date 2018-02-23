@@ -8,6 +8,7 @@ import net.minegrid.obelisk.api.UserMask;
 import net.minegrid.obelisk.api.command.OCmd;
 import net.minegrid.obelisk.api.command.OCmdMod;
 import net.minegrid.obelisk.api.command.ObeliskListener;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
@@ -70,7 +71,7 @@ public class SoulbindCommand implements ObeliskListener{
         Integer bindMax = u.getVarElseSetDefault("bindMax", 0);
         Integer bindCurrent = u.getVarElseSetDefault("bindCurrent", 0);
 
-        if(bindCurrent < bindMax && args[0] == "natural"){
+        if(bindCurrent < bindMax && args[0].equals("natural")){
 
             player.sendMessage("test2");
             if(player.getInventory().getItemInMainHand() != null){
@@ -159,12 +160,11 @@ public class SoulbindCommand implements ObeliskListener{
     void getPerms(Player player, String args[]){
         for(PermissionAttachmentInfo perm: player.getEffectivePermissions()){
             String permission = perm.getPermission();
-            if(permission.startsWith("soulbind.bind.")){
-
-
+            if(permission.startsWith("soulbind.bind")){
+                String[] permSplit = permission.split(".");
+                player.sendMessage(permSplit);
             }
-
-            player.sendMessage(permission);
+            Bukkit.getConsoleSender().sendMessage(permission);
         }
     }
 

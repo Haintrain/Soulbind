@@ -75,7 +75,7 @@ public class Soulbind extends JavaModule implements ObeliskListener{
 
         for(PermissionAttachmentInfo perm: player.getEffectivePermissions()){
             String permission = perm.getPermission();
-            if(permission.startsWith("soulbind.bind.")){
+            if(permission.startsWith("soulbind.bind")){
                 String[] permSplit = permission.split(".");
                 int max = Integer.parseInt(permSplit[2]);
 
